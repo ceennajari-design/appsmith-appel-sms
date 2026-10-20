@@ -1,0 +1,12 @@
+INSERT INTO chat.messages_sms (bureau, numero_bureau, numero_client, sens, origine, texte, statut, auteur_email, auteur_nom, workflow, appel_id, id_fournisseur)
+SELECT b.bureau, b.numero_envoi, {{ Custom1.model.nouveauMessage.numeroClient }}::text, 'sortant', 'chat_employe',
+       {{ Custom1.model.nouveauMessage.texte }}::text, 'envoyé',
+       {{ Custom1.model.app.monEmail }}::text, {{ Custom1.model.app.utilisateur }}::text || ' (test)',
+       'Bac à sable (aucun SMS envoyé)', {{ Custom1.model.nouveauMessage.appelId }}::text,
+       'test-' || replace(gen_random_uuid()::text, '-', '')
+FROM chat.bureaux b
+WHERE b.bureau = {{ Custom1.model.nouveauMessage.bureau }}::text
+  AND (
+    NOT EXISTS (SELECT 1 FROM chat.employes e WHERE lower(e.email) = lower({{appsmith.user.email}}))
+    OR EXISTS (SELECT 1 FROM chat.employes e WHERE lower(e.email) = lower({{appsmith.user.email}}) AND (e.role = 'direction' OR e.bureau = b.bureau))
+  );

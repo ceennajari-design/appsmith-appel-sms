@@ -1,0 +1,18 @@
+DELETE FROM configuration_sms
+WHERE record_id = ANY(string_to_array({{ Custom1.model.deletedIds.ids.join(",") }}, ','))
+  AND usage IS NULL
+  AND (
+    NOT EXISTS (SELECT 1 FROM chat.employes e WHERE lower(e.email) = lower({{appsmith.user.email}}))
+    OR EXISTS (SELECT 1 FROM chat.employes e WHERE lower(e.email) = lower({{appsmith.user.email}}) AND (e.role = 'direction' OR e.bureau = configuration_sms.bureau))
+  );
+
+
+/*DELETE FROM configuration_sms
+WHERE record_id = ANY(string_to_array({{ Custom1.model.deletedIds.ids.join(",") }}, ','))
+  AND usage IS NULL;
+
+ VERSION TEST : à garder pour revenir en arrière. Pour la restaurer, retirer les espaces dans la liaison.
+DELETE FROM test_configuration_sms
+WHERE record_id = ANY(string_to_array({ { Custom1.model.deletedIds.ids.join(",") } }, ','))
+  AND usage IS NULL;
+*/

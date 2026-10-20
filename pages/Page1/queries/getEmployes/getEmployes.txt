@@ -1,0 +1,11 @@
+SELECT
+  e.id,
+  lower(e.email) AS email,
+  e.nom,
+  e.role,
+  e.bureau,
+  e.cree_le AS "creeLe"
+FROM chat.employes e
+WHERE NOT EXISTS (SELECT 1 FROM chat.employes x WHERE lower(x.email) = lower({{appsmith.user.email}}))
+   OR EXISTS (SELECT 1 FROM chat.employes x WHERE lower(x.email) = lower({{appsmith.user.email}}) AND x.role = 'direction')
+ORDER BY lower(e.email), e.bureau;

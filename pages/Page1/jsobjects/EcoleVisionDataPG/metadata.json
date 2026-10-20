@@ -1,0 +1,36 @@
+{
+  "gitSyncId": "6abd75bef95ff23762b09234_c1b93f34-62e7-4635-8a0c-611148d29444",
+  "id": "Page1_EcoleVisionDataPG",
+  "unpublishedCollection": {
+    "name": "EcoleVisionDataPG",
+    "pageId": "Page1",
+    "pluginId": "js-plugin",
+    "pluginType": "JS",
+    "variables": [
+      {
+        "name": "NOM_ENTREPRISE",
+        "value": "\"Ecole de conduite Vision\""
+      },
+      {
+        "name": "LOGO_URL",
+        "value": "\"\""
+      },
+      {
+        "name": "LOGO_BASE",
+        "value": "\"logo-entreprise\""
+      },
+      {
+        "name": "ACCES_STRICT",
+        "value": "false"
+      },
+      {
+        "name": "BUREAUX",
+        "value": "[\"Latuque\", \"Shawinigan\", \"Trois-Rivieres (CDLM)\", \"Trois-Rivieres Ouest\"]"
+      },
+      {
+        "name": "BUREAU_PAR_EMPLOYE",
+        "value": "{\n  \"latuque@ecoledeconduitevision.com\": \"Latuque\",\n  \"isabellebertrand@ecoledeconduitevision.com\": \"Latuque\",\n  \"ecolevision@cloudtel.ca\": \"Shawinigan\",\n  \"info@ecoledeconduitevision.com\": \"Shawinigan\",\n  \"tr@ecoledeconduitevision.com\": \"Trois-Rivieres (CDLM)\",\n  \"tro@ecoledeconduitevision.com\": \"Trois-Rivieres Ouest\"\n}"
+      }
+    ]
+  }
+}

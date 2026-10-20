@@ -1,0 +1,6 @@
+DELETE FROM chat.employes
+WHERE lower(email) = lower(btrim({{this.params.ancienEmail}}))
+  AND (lower(email) <> lower(btrim({{this.params.email}}))
+       OR NOT (COALESCE(bureau, '*') = ANY(string_to_array({{this.params.cles}}, ','))))
+  AND (NOT EXISTS (SELECT 1 FROM chat.employes x WHERE lower(x.email) = lower({{appsmith.user.email}}))
+       OR EXISTS (SELECT 1 FROM chat.employes x WHERE lower(x.email) = lower({{appsmith.user.email}}) AND x.role = 'direction'));

@@ -1,0 +1,10 @@
+INSERT INTO chat.employes (email, nom, role, bureau)
+SELECT lower(btrim({{this.params.email}})),
+       NULLIF(btrim({{this.params.nom}}), ''),
+       {{this.params.role}},
+       CASE WHEN b = '*' THEN NULL ELSE b END
+FROM unnest(string_to_array({{this.params.cles}}, ',')) AS b
+WHERE NOT EXISTS (SELECT 1 FROM chat.employes x WHERE lower(x.email) = lower({{appsmith.user.email}}))
+   OR EXISTS (SELECT 1 FROM chat.employes x WHERE lower(x.email) = lower({{appsmith.user.email}}) AND x.role = 'direction')
+ON CONFLICT (lower(email), COALESCE(bureau, '*'))
+DO UPDATE SET nom = EXCLUDED.nom, role = EXCLUDED.role;

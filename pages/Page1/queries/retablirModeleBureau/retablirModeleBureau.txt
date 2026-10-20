@@ -1,0 +1,8 @@
+DELETE FROM configuration_sms
+WHERE record_id = {{ Custom1.model.retablirModele.id }}::text
+  AND bureau IS NOT NULL
+  AND (usage IS NOT NULL OR modele_defaut IS NOT NULL)
+  AND (
+    NOT EXISTS (SELECT 1 FROM chat.employes e WHERE lower(e.email) = lower({{appsmith.user.email}}))
+    OR EXISTS (SELECT 1 FROM chat.employes e WHERE lower(e.email) = lower({{appsmith.user.email}}) AND (e.role = 'direction' OR e.bureau = configuration_sms.bureau))
+  );

@@ -1,0 +1,3 @@
+SELECT e.role, e.bureau, e.nom
+FROM chat.employes e
+WHERE lower(e.email) = lower({{appsmith.user.email}});

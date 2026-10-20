@@ -1,0 +1,17 @@
+SELECT
+p.record_id AS id,
+p.nom_client AS client,
+p.numero_telephone AS telephone,
+c.titre AS message,
+p.message_a_envoyer[1] AS "messageId",
+p.date_envoie_sms_automatique AS "dateEnvoi",
+p.heure,
+p.status AS statut,
+p.ajoute_par ->> 'name' AS "ajoutePar",
+p.date_ajoute AS "dateAjout",
+p.bureau
+FROM planification_sms p
+LEFT JOIN configuration_sms c ON c.record_id = p.message_a_envoyer[1]
+WHERE p.bureau IS NULL
+  OR NOT EXISTS (SELECT 1 FROM chat.employes e WHERE lower(e.email) = lower({{appsmith.user.email}}))
+  OR EXISTS (SELECT 1 FROM chat.employes e WHERE lower(e.email) = lower({{appsmith.user.email}}) AND (e.role = 'direction' OR e.bureau = p.bureau));

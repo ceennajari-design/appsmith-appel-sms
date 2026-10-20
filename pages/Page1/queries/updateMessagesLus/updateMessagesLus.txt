@@ -1,0 +1,9 @@
+UPDATE chat.messages_sms
+SET lu_le = now(), lu_par = {{ Custom1.model.app.monEmail }}::text
+WHERE numero_client = {{ Custom1.model.conversationLue.numeroClient }}::text
+  AND bureau = {{ Custom1.model.conversationLue.bureau }}::text
+  AND sens = 'entrant' AND lu_le IS NULL
+  AND (
+    NOT EXISTS (SELECT 1 FROM chat.employes e WHERE lower(e.email) = lower({{appsmith.user.email}}))
+    OR EXISTS (SELECT 1 FROM chat.employes e WHERE lower(e.email) = lower({{appsmith.user.email}}) AND (e.role = 'direction' OR e.bureau = chat.messages_sms.bureau))
+  );

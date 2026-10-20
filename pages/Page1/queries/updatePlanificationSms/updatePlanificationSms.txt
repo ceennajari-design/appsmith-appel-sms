@@ -1,0 +1,17 @@
+UPDATE planification_sms SET
+  nom_client = {{ Custom1.model.editedRecord.record.client }},
+  numero_telephone = {{ Custom1.model.editedRecord.record.telephone }},
+  message_a_envoyer = ARRAY[{{ Custom1.model.editedRecord.record.messageId }}]::text[],
+  date_envoie_sms_automatique = {{ Custom1.model.editedRecord.record.dateEnvoi }},
+  heure = {{ Custom1.model.editedRecord.record.heure }},
+  status = {{ Custom1.model.editedRecord.record.statut }},
+  bureau = {{ Custom1.model.editedRecord.record.bureau }}
+WHERE record_id = {{ Custom1.model.editedRecord.id }}
+  AND (
+    NOT EXISTS (SELECT 1 FROM chat.employes e WHERE lower(e.email) = lower({{appsmith.user.email}}))
+    OR EXISTS (SELECT 1 FROM chat.employes e WHERE lower(e.email) = lower({{appsmith.user.email}}) AND (e.role = 'direction' OR e.bureau = planification_sms.bureau))
+  )
+  AND (
+    NOT EXISTS (SELECT 1 FROM chat.employes e WHERE lower(e.email) = lower({{appsmith.user.email}}))
+    OR EXISTS (SELECT 1 FROM chat.employes e WHERE lower(e.email) = lower({{appsmith.user.email}}) AND (e.role = 'direction' OR e.bureau = {{ Custom1.model.editedRecord.record.bureau }}::text))
+  );

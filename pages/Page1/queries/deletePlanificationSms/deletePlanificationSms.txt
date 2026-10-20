@@ -1,0 +1,7 @@
+DELETE FROM planification_sms
+WHERE record_id = ANY(string_to_array({{ Custom1.model.deletedIds.ids.join(",") }}, ','))
+  AND (
+    NOT EXISTS (SELECT 1 FROM chat.employes e WHERE lower(e.email) = lower({{appsmith.user.email}}))
+    OR EXISTS (SELECT 1 FROM chat.employes e WHERE lower(e.email) = lower({{appsmith.user.email}}) AND (e.role = 'direction' OR e.bureau = planification_sms.bureau))
+  );
+

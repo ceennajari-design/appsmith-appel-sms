@@ -1,0 +1,48 @@
+
+SELECT
+a.record_id AS id,
+a."timestamp" AS date,
+to_char(a."timestamp" AT TIME ZONE 'America/Toronto', 'HH24:MI') AS heure,
+a.bureau,
+a.appelant,
+a.type,
+a.status AS statut,
+a.sms_appel_manque AS "smsAppel",
+a.sms_message_vocal AS "smsVocal",
+a.derniere_modification AS "derniereModification",
+a.nom_client AS "nomClient"
+FROM appels_manques a
+WHERE a.bureau IS NULL
+  OR NOT EXISTS (SELECT 1 FROM chat.employes e WHERE lower(e.email) = lower({{appsmith.user.email}}))
+  OR EXISTS (SELECT 1 FROM chat.employes e WHERE lower(e.email) = lower({{appsmith.user.email}}) AND (e.role = 'direction' OR e.bureau = a.bureau));
+
+
+/* SELECT
+  record_id AS id,
+  "timestamp" AS date,
+  to_char("timestamp" AT TIME ZONE 'America/Toronto', 'HH24:MI') AS heure,
+  bureau,
+  appelant,
+  type,
+  status AS statut,
+  sms_appel_manque AS "smsAppel",
+  sms_message_vocal AS "smsVocal",
+  derniere_modification AS "derniereModification",
+  nom_client AS "nomClient"
+FROM appels_manques;
+
+VERSION TEST : à garder en commentaire, pour revenir en arrière
+SELECT
+  record_id AS id,
+  "timestamp" AS date,
+  to_char("timestamp" AT TIME ZONE 'America/Toronto', 'HH24:MI') AS heure,
+  bureau,
+  appelant,
+  type,
+  status AS statut,
+  sms_appel_manque AS "smsAppel",
+  sms_message_vocal AS "smsVocal",
+  derniere_modification AS "derniereModification",
+  nom_client AS "nomClient"
+FROM test_appels_manques;
+*/

@@ -1,0 +1,37 @@
+WITH moi AS (
+  SELECT e.bureau
+  FROM chat.employes e
+  WHERE lower(e.email) = lower({{appsmith.user.email}}) AND e.role <> 'direction' AND e.bureau IS NOT NULL
+  ORDER BY e.bureau
+  LIMIT 1
+),
+defaut AS (
+  SELECT c.record_id, c.titre, c.usage, c.description
+  FROM configuration_sms c
+  WHERE c.record_id = {{ Custom1.model.personnaliserModele.defautId }}::text AND c.bureau IS NULL
+),
+maj AS (
+  UPDATE configuration_sms AS o
+  SET message = {{ Custom1.model.personnaliserModele.message }}::text,
+      derniere_modification = jsonb_build_object('name', {{ Custom1.model.app.utilisateur }}::text, 'email', {{ Custom1.model.app.monEmail }}::text)
+  FROM defaut d, moi
+  WHERE o.bureau = moi.bureau
+    AND ((d.usage IS NOT NULL AND o.usage = d.usage) OR (d.usage IS NULL AND o.modele_defaut = d.record_id))
+  RETURNING o.record_id
+)
+INSERT INTO configuration_sms (
+  record_id, titre, message, usage, bureau, description, modele_defaut, cree_par, date_creation, derniere_modification
+)
+SELECT
+  'cfg_' || replace(gen_random_uuid()::text, '-', ''),
+  d.titre,
+  {{ Custom1.model.personnaliserModele.message }}::text,
+  d.usage,
+  moi.bureau,
+  d.description,
+  CASE WHEN d.usage IS NULL THEN d.record_id ELSE NULL END,
+  jsonb_build_object('name', {{ Custom1.model.app.utilisateur }}::text, 'email', {{ Custom1.model.app.monEmail }}::text),
+  now(),
+  jsonb_build_object('name', {{ Custom1.model.app.utilisateur }}::text, 'email', {{ Custom1.model.app.monEmail }}::text)
+FROM defaut d, moi
+WHERE NOT EXISTS (SELECT 1 FROM maj);

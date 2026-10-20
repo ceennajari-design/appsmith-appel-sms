@@ -1,0 +1,18 @@
+UPDATE appels_manques SET
+  appelant = {{ Custom1.model.editedRecord.record.appelant }},
+  nom_client = NULLIF({{ Custom1.model.editedRecord.record.nomClient }}, ''),
+  bureau = {{ Custom1.model.editedRecord.record.bureau }},
+  type = {{ Custom1.model.editedRecord.record.type }},
+  status = {{ Custom1.model.editedRecord.record.statut }},
+  sms_appel_manque = {{ Custom1.model.editedRecord.record.smsAppel }},
+  sms_message_vocal = {{ Custom1.model.editedRecord.record.smsVocal }},
+  derniere_modification = now()
+WHERE record_id = {{ Custom1.model.editedRecord.id }}
+  AND (
+    NOT EXISTS (SELECT 1 FROM chat.employes e WHERE lower(e.email) = lower({{appsmith.user.email}}))
+    OR EXISTS (SELECT 1 FROM chat.employes e WHERE lower(e.email) = lower({{appsmith.user.email}}) AND (e.role = 'direction' OR e.bureau = appels_manques.bureau))
+  )
+  AND (
+    NOT EXISTS (SELECT 1 FROM chat.employes e WHERE lower(e.email) = lower({{appsmith.user.email}}))
+    OR EXISTS (SELECT 1 FROM chat.employes e WHERE lower(e.email) = lower({{appsmith.user.email}}) AND (e.role = 'direction' OR e.bureau = {{ Custom1.model.editedRecord.record.bureau }}::text))
+  );

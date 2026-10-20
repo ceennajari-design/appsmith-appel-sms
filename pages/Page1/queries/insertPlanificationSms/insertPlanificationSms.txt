@@ -1,0 +1,17 @@
+INSERT INTO planification_sms (
+  record_id, nom_client, numero_telephone, message_a_envoyer,
+  date_envoie_sms_automatique, heure, status, ajoute_par, date_ajoute, bureau
+)
+SELECT
+  'sms_' || replace(gen_random_uuid()::text, '-', ''),
+  {{ Custom1.model.newRecord.record.client }}::text,
+  {{ Custom1.model.newRecord.record.telephone }}::text,
+  ARRAY[{{ Custom1.model.newRecord.record.messageId }}::text],
+  {{ Custom1.model.newRecord.record.dateEnvoi }}::date,
+  {{ Custom1.model.newRecord.record.heure }}::text,
+  {{ Custom1.model.newRecord.record.statut }}::text,
+  jsonb_build_object('name', {{ Custom1.model.app.utilisateur }}::text, 'email', {{ Custom1.model.app.monEmail }}::text),
+  now(),
+  {{ Custom1.model.newRecord.record.bureau }}::text
+WHERE NOT EXISTS (SELECT 1 FROM chat.employes e WHERE lower(e.email) = lower({{appsmith.user.email}}))
+   OR EXISTS (SELECT 1 FROM chat.employes e WHERE lower(e.email) = lower({{appsmith.user.email}}) AND (e.role = 'direction' OR e.bureau = {{ Custom1.model.newRecord.record.bureau }}::text));

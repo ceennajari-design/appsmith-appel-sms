@@ -1,0 +1,40 @@
+INSERT INTO configuration_sms (
+  record_id, titre, message, bureau, cree_par, date_creation, derniere_modification
+)
+SELECT
+  'cfg_' || replace(gen_random_uuid()::text, '-', ''),
+  {{ Custom1.model.newRecord.record.titre }}::text,
+  {{ Custom1.model.newRecord.record.message }}::text,
+  (SELECT e.bureau FROM chat.employes e
+     WHERE lower(e.email) = lower({{appsmith.user.email}}) AND e.role <> 'direction' AND e.bureau IS NOT NULL
+     ORDER BY e.bureau LIMIT 1),
+  jsonb_build_object('name', {{ Custom1.model.app.utilisateur }}::text, 'email', {{ Custom1.model.app.monEmail }}::text),
+  now(),
+  jsonb_build_object('name', {{ Custom1.model.app.utilisateur }}::text, 'email', {{ Custom1.model.app.monEmail }}::text)
+WHERE NOT EXISTS (SELECT 1 FROM chat.employes e WHERE lower(e.email) = lower({{appsmith.user.email}}))
+   OR EXISTS (SELECT 1 FROM chat.employes e WHERE lower(e.email) = lower({{appsmith.user.email}}) AND (e.role = 'direction' OR e.bureau IS NOT NULL));
+
+
+/*INSERT INTO configuration_sms (
+  record_id, titre, message, cree_par, date_creation, derniere_modification
+) VALUES (
+  'cfg_' || replace(gen_random_uuid()::text, '-', ''),
+  {{ Custom1.model.newRecord.record.titre }},
+  {{ Custom1.model.newRecord.record.message }},
+  jsonb_build_object('name', {{ Custom1.model.app.utilisateur }}::text, 'email', {{ Custom1.model.app.monEmail }}::text),
+  now(),
+  jsonb_build_object('name', {{ Custom1.model.app.utilisateur }}::text, 'email', {{ Custom1.model.app.monEmail }}::text)
+);
+
+ VERSION TEST : à garder pour revenir en arrière. Pour la restaurer, retirer les espaces dans chaque liaison (six liaisons).
+INSERT INTO test_configuration_sms (
+  record_id, titre, message, cree_par, date_creation, derniere_modification
+) VALUES (
+  'cfg_' || replace(gen_random_uuid()::text, '-', ''),
+  { { Custom1.model.newRecord.record.titre } },
+  { { Custom1.model.newRecord.record.message } },
+  jsonb_build_object('name', { { Custom1.model.app.utilisateur } }::text, 'email', { { Custom1.model.app.monEmail } }::text),
+  now(),
+  jsonb_build_object('name', { { Custom1.model.app.utilisateur } }::text, 'email', { { Custom1.model.app.monEmail } }::text)
+);
+*/

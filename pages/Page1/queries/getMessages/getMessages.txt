@@ -1,0 +1,24 @@
+SELECT m.seq, m.id, m.cree_le AS "creeLe", m.bureau, m.numero_bureau AS "numeroBureau", m.numero_client AS "numeroClient",
+      m.sens, m.origine, m.texte, m.statut, m.erreur,
+      m.auteur_nom AS "auteurNom", m.auteur_email AS "auteurEmail",
+      m.modele_titre AS "modeleTitre", m.appel_id AS "appelId",
+      m.lu_le AS "luLe", m.lu_par AS "luPar",
+      m.expediteur, m.destinataire
+FROM chat.messages_sms m
+WHERE m.cree_le > now() - interval '14 days'
+  AND (
+    m.bureau IS NULL
+    OR NOT EXISTS (SELECT 1 FROM chat.employes e WHERE lower(e.email) = lower({{appsmith.user.email}}))
+    OR EXISTS (SELECT 1 FROM chat.employes e WHERE lower(e.email) = lower({{appsmith.user.email}}) AND (e.role = 'direction' OR e.bureau = m.bureau))
+  )
+ORDER BY m.seq;
+
+/*SELECT seq, id, cree_le AS "creeLe", bureau, numero_bureau AS "numeroBureau", numero_client AS "numeroClient",
+       sens, origine, texte, statut, erreur,
+       auteur_nom AS "auteurNom", auteur_email AS "auteurEmail",
+       modele_titre AS "modeleTitre", appel_id AS "appelId",
+       lu_le AS "luLe", lu_par AS "luPar",
+       expediteur, destinataire
+FROM chat.messages_sms
+WHERE cree_le > now() - interval '14 days'
+ORDER BY seq;*/

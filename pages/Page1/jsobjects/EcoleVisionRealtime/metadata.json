@@ -1,0 +1,20 @@
+{
+  "gitSyncId": "6abd75bef95ff23762b09234_52db7c74-8ae0-4f59-b650-46f8ee05a836",
+  "id": "Page1_EcoleVisionRealtime",
+  "unpublishedCollection": {
+    "name": "EcoleVisionRealtime",
+    "pageId": "Page1",
+    "pluginId": "js-plugin",
+    "pluginType": "JS",
+    "variables": [
+      {
+        "name": "intervalId",
+        "value": "null"
+      },
+      {
+        "name": "chatIntervalId",
+        "value": "null"
+      }
+    ]
+  }
+}

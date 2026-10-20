@@ -1,0 +1,26 @@
+UPDATE configuration_sms SET
+  titre = CASE
+            WHEN configuration_sms.bureau IS NOT NULL AND (configuration_sms.usage IS NOT NULL OR configuration_sms.modele_defaut IS NOT NULL)
+              THEN configuration_sms.titre
+            ELSE {{ Custom1.model.editedRecord.record.titre }}::text
+          END,
+  message = {{ Custom1.model.editedRecord.record.message }}::text,
+  derniere_modification = jsonb_build_object('name', {{ Custom1.model.app.utilisateur }}::text, 'email', {{ Custom1.model.app.monEmail }}::text)
+WHERE record_id = {{ Custom1.model.editedRecord.id }}::text
+  AND (
+    NOT EXISTS (SELECT 1 FROM chat.employes e WHERE lower(e.email) = lower({{appsmith.user.email}}))
+    OR EXISTS (SELECT 1 FROM chat.employes e WHERE lower(e.email) = lower({{appsmith.user.email}}) AND (e.role = 'direction' OR e.bureau = configuration_sms.bureau))
+  );
+/*UPDATE configuration_sms SET
+  titre = {{ Custom1.model.editedRecord.record.titre }},
+  message = {{ Custom1.model.editedRecord.record.message }},
+  derniere_modification = jsonb_build_object('name', {{ Custom1.model.app.utilisateur }}::text, 'email', {{ Custom1.model.app.monEmail }}::text)
+WHERE record_id = {{ Custom1.model.editedRecord.id }};
+
+ VERSION TEST : à garder pour revenir en arrière. Pour la restaurer, retirer les espaces dans chaque liaison (cinq liaisons).
+UPDATE test_configuration_sms SET
+  titre = { { Custom1.model.editedRecord.record.titre } },
+  message = { { Custom1.model.editedRecord.record.message } },
+  derniere_modification = jsonb_build_object('name', { { Custom1.model.app.utilisateur } }::text, 'email', { { Custom1.model.app.monEmail } }::text)
+WHERE record_id = { { Custom1.model.editedRecord.id } };
+*/
