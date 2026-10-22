@@ -34,11 +34,27 @@ export default {
       if (p.ancienEmail) await nettoyerEmploye.run({ ancienEmail: p.ancienEmail, email: p.email, cles: p.cles });
       await getEmployes.run();
       await getMonProfil.run();
-      await this.dire(true, "Employé enregistré.");
+      // Nouvel employé seulement (ancienEmail vide) : invitation dans Appsmith par le flux n8n. Un échec ici n'annule pas l'enregistrement.
+      const suite = p.ancienEmail ? "" : await this.inviter(p.email);
+      await this.dire(true, "Employé enregistré." + suite);
     } catch (e) {
       await getEmployes.run();
       await this.dire(false, "L'enregistrement a échoué : réessayez ou contactez le support.");
       showAlert("Enregistrement de l'employé impossible.", "error");
+    }
+  },
+
+  // Invite la personne dans Appsmith (App Viewer) via la requête REST « inviterEmploye » (webhook n8n). Renvoie une phrase à
+  // ajouter au message de l'enregistrement ; ne lance jamais d'exception.
+  async inviter(email) {
+    try {
+      const r = await inviterEmploye.run({ email });
+      if (r && r.statut === "deja_membre") return " Cette personne a déjà accès à Appsmith.";
+      if (r && r.ok && r.courrielEnvoye) return " Un courriel d'invitation lui a été envoyé.";
+      if (r && r.ok && r.lienInscription) return " Invitation créée, mais le courriel n'a pas pu être envoyé : transmettez-lui ce lien d'inscription : " + r.lienInscription;
+      return " L'invitation Appsmith n'a pas abouti" + (r && r.message ? " (" + r.message + ")" : "") + " : invitez la personne à la main.";
+    } catch (e) {
+      return " L'invitation Appsmith a échoué : invitez la personne à la main.";
     }
   },
 

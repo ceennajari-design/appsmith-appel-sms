@@ -29,7 +29,7 @@
     ],
     "name": "getPlanificationSms",
     "pageId": "Page1",
-    "runBehaviour": "MANUAL",
+    "runBehaviour": "AUTOMATIC",
     "userSetOnLoad": false
   }
 }

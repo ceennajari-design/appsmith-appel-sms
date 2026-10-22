@@ -1,5 +1,5 @@
 -- yesy latuque employe
 -- UPDATE chat.employes SET role = 'employe', bureau = 'Shawinigan' WHERE lower(email) = 'support@yultr.com';
 -- RETOUR : vous redevenez direction, tous les bureaux
- UPDATE chat.employes SET role = 'direction', bureau = NULL WHERE lower(email) = 'support@yultr.com';
-
+-- UPDATE chat.employes SET role = 'direction', bureau = NULL WHERE lower(email) = 'support@yultr.com';
+DELETE FROM chat.messages_sms WHERE numero_client = '+18195550124';
