@@ -58,7 +58,27 @@ export default {
     }
   },
 
+  // Retire l'accès Appsmith des personnes déjà supprimées de chat.employes, via la requête REST « retirerEmploye » (webhook n8n),
+  // une personne à la fois. Renvoie une phrase à ajouter au message de la suppression ; ne lance jamais d'exception.
+  // Les refus du flux (400, 409, 502) font lancer une exception à run() : ils tombent dans le catch.
+  async retirerAppsmith(emails) {
+    const liste = String(emails || "").split(",").map((e) => e.trim()).filter(Boolean);
+    const phrases = [];
+    for (const email of liste) {
+      let phrase;
+      try {
+        const r = await retirerEmploye.run({ email });
+        phrase = r && r.message ? r.message : "Son accès à Appsmith n'a pas pu être vérifié : à vérifier à la main dans Appsmith.";
+      } catch (e) {
+        phrase = "Son accès à Appsmith n'a pas pu être retiré : à retirer à la main dans Appsmith.";
+      }
+      phrases.push(liste.length > 1 ? email + " : " + phrase : phrase);
+    }
+    return phrases.length ? " " + phrases.join(" ") : "";
+  },
+
   // Retire des personnes. model.employesSupprimes = { emails } (adresses séparées par des virgules)
+  // Suppression dans chat.employes d'abord (le flux de retrait Appsmith refuse une personne encore présente), puis retrait Appsmith.
   async supprimer() {
     const p = Custom1.model.employesSupprimes;
     if (!p || !p.emails) return;
@@ -66,7 +86,8 @@ export default {
       await supprimerEmploye.run({ emails: p.emails });
       await getEmployes.run();
       await getMonProfil.run();
-      await this.dire(true, "Employé retiré.");
+      const suite = await this.retirerAppsmith(p.emails);
+      await this.dire(true, (String(p.emails).indexOf(",") >= 0 ? "Employés retirés de la page Employés." : "Employé retiré de la page Employés.") + suite);
     } catch (e) {
       await getEmployes.run();
       await this.dire(false, "La suppression a échoué : réessayez ou contactez le support.");
