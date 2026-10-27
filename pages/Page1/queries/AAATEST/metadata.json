@@ -5,7 +5,7 @@
   "pluginType": "DB",
   "unpublishedAction": {
     "actionConfiguration": {
-      "body": "-- yesy latuque employe\n-- UPDATE chat.employes SET role = 'employe', bureau = 'Shawinigan' WHERE lower(email) = 'support@yultr.com';\n-- RETOUR : vous redevenez direction, tous les bureaux\n-- UPDATE chat.employes SET role = 'direction', bureau = NULL WHERE lower(email) = 'support@yultr.com';\nDELETE FROM chat.messages_sms WHERE numero_client = '+18195550124';",
+      "body": "-- yesy latuque employe\n-- UPDATE chat.employes SET role = 'employe', bureau = 'Shawinigan' WHERE lower(email) = 'support@yultr.com';\n-- RETOUR : vous redevenez direction, tous les bureaux\n-- UPDATE chat.employes SET role = 'direction', bureau = NULL WHERE lower(email) = 'support@yultr.com';\nSELECT bureau, numero_client, origine, texte FROM chat.messages_sms WHERE numero_client IN ('+18195550220','+18195550221') ORDER BY seq;",
       "encodeParamsToggle": true,
       "paginationType": "NONE",
       "pluginSpecifiedTemplates": [

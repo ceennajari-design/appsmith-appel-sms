@@ -124,6 +124,8 @@ export default {
       version: appsmith.store.dataVersion || 0,
       // Thème choisi (« dark » / « light ») mémorisé par l'événement onChangerTheme ; null = jamais choisi.
       theme: appsmith.store.theme || null,
+      // Format d'heure choisi (« 24h » / « 12h ») mémorisé par l'événement onChangerFormatHeure ; null = jamais choisi (24h par défaut).
+      formatHeure: appsmith.store.formatHeure || null,
       bureaux: p.bureaux,
       sms: getPlanificationSms.data || [],
       appels: getAppelsManques.data || [],

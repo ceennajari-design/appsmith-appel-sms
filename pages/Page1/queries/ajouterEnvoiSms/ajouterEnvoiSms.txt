@@ -1,16 +1,13 @@
-VERSION TEST : à garder pour revenir en arrière. Pour la restaurer, retirer les espaces dans chaque liaison (trois liaisons).
-INSERT INTO test_appels_manques (
-  record_id, appelant, bureau, type, status, sms_appel_manque, sms_message_vocal, "timestamp", heure, nom_client
+INSERT INTO appels_manques (
+record_id, appelant, bureau, type, status, sms_appel_manque, sms_message_vocal, "timestamp", nom_client
 ) VALUES (
-  'man_' || replace(gen_random_uuid()::text, '-', ''),
-  { { Custom1.model.nouvelEnvoiSms.telephone } },
-  { { Custom1.model.nouvelEnvoiSms.bureau } },
-  'Envoi SMS',
-  'Nouveau',
-  'Non applicable',
-  'Non applicable',
-  now(),
-  to_jsonb(to_char(now() AT TIME ZONE 'America/Toronto', 'HH24:MI')),
-  NULLIF({ { Custom1.model.nouvelEnvoiSms.nomClient } }, '')
+'man_' || replace(gen_random_uuid()::text, '-', ''),
+{{ Custom1.model.nouvelEnvoiSms.telephone }},
+{{ Custom1.model.nouvelEnvoiSms.bureau }},
+'Envoi SMS',
+'Nouveau',
+'Non applicable',
+'Non applicable',
+now(),
+NULLIF({{ Custom1.model.nouvelEnvoiSms.nomClient }}, '')
 );
-*/
