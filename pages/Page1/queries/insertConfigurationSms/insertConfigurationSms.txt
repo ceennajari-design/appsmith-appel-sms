@@ -1,3 +1,38 @@
+WITH moi AS (
+  SELECT
+    (NOT EXISTS (SELECT 1 FROM chat.employes e WHERE lower(e.email) = lower({{appsmith.user.email}}))
+     OR EXISTS (SELECT 1 FROM chat.employes e WHERE lower(e.email) = lower({{appsmith.user.email}}) AND e.role = 'direction')) AS toutes,
+    NULLIF(trim({{ Custom1.model.newRecord.record.bureau }}::text), '') AS choisi
+),
+cible AS (
+  SELECT
+    m.toutes,
+    CASE WHEN m.toutes THEN m.choisi
+         ELSE COALESCE(m.choisi, (SELECT min(e.bureau) FROM chat.employes e
+                                   WHERE lower(e.email) = lower({{appsmith.user.email}}) AND e.bureau IS NOT NULL
+                                   HAVING count(*) = 1))
+    END AS bureau
+  FROM moi m
+)
+INSERT INTO configuration_sms (
+  record_id, titre, message, bureau, cree_par, date_creation, derniere_modification
+)
+SELECT
+  'cfg_' || replace(gen_random_uuid()::text, '-', ''),
+  {{ Custom1.model.newRecord.record.titre }}::text,
+  {{ Custom1.model.newRecord.record.message }}::text,
+  c.bureau,
+  jsonb_build_object('name', {{ Custom1.model.app.utilisateur }}::text, 'email', {{ Custom1.model.app.monEmail }}::text),
+  now(),
+  jsonb_build_object('name', {{ Custom1.model.app.utilisateur }}::text, 'email', {{ Custom1.model.app.monEmail }}::text)
+FROM cible c
+WHERE CASE WHEN c.toutes
+           THEN (c.bureau IS NULL OR EXISTS (SELECT 1 FROM chat.bureaux b WHERE b.bureau = c.bureau))
+           ELSE (c.bureau IS NOT NULL AND EXISTS (SELECT 1 FROM chat.employes e WHERE lower(e.email) = lower({{appsmith.user.email}}) AND e.bureau = c.bureau))
+      END;
+
+
+/*
 INSERT INTO configuration_sms (
   record_id, titre, message, bureau, cree_par, date_creation, derniere_modification
 )
@@ -15,7 +50,7 @@ WHERE NOT EXISTS (SELECT 1 FROM chat.employes e WHERE lower(e.email) = lower({{a
    OR EXISTS (SELECT 1 FROM chat.employes e WHERE lower(e.email) = lower({{appsmith.user.email}}) AND (e.role = 'direction' OR e.bureau IS NOT NULL));
 
 
-/*INSERT INTO configuration_sms (
+INSERT INTO configuration_sms (
   record_id, titre, message, cree_par, date_creation, derniere_modification
 ) VALUES (
   'cfg_' || replace(gen_random_uuid()::text, '-', ''),

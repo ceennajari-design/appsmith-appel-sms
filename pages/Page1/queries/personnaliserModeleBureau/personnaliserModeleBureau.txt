@@ -2,6 +2,11 @@ WITH moi AS (
   SELECT e.bureau
   FROM chat.employes e
   WHERE lower(e.email) = lower({{appsmith.user.email}}) AND e.role <> 'direction' AND e.bureau IS NOT NULL
+    AND (
+      e.bureau = NULLIF(trim({{ Custom1.model.personnaliserModele.bureau }}::text), '')
+      OR (NULLIF(trim({{ Custom1.model.personnaliserModele.bureau }}::text), '') IS NULL
+          AND (SELECT count(*) FROM chat.employes x WHERE lower(x.email) = lower({{appsmith.user.email}}) AND x.bureau IS NOT NULL) = 1)
+    )
   ORDER BY e.bureau
   LIMIT 1
 ),

@@ -13,23 +13,16 @@ WHERE NOT EXISTS (SELECT 1 FROM chat.employes e WHERE lower(e.email) = lower({{a
    OR EXISTS (SELECT 1 FROM chat.employes e WHERE lower(e.email) = lower({{appsmith.user.email}}) AND (e.role = 'direction' OR e.bureau = c.bureau))
    OR (
      c.bureau IS NULL
-     AND NOT EXISTS (
+     AND EXISTS (
        SELECT 1
-       FROM configuration_sms o
-       JOIN chat.employes e ON lower(e.email) = lower({{appsmith.user.email}}) AND e.bureau = o.bureau
-       WHERE (o.usage IS NOT NULL AND o.usage = c.usage)
-          OR (o.modele_defaut IS NOT NULL AND o.modele_defaut = c.record_id)
+       FROM chat.employes e
+       WHERE lower(e.email) = lower({{appsmith.user.email}})
+         AND NOT EXISTS (
+           SELECT 1
+           FROM configuration_sms o
+           WHERE o.bureau = e.bureau
+             AND ((o.usage IS NOT NULL AND o.usage = c.usage)
+               OR (o.modele_defaut IS NOT NULL AND o.modele_defaut = c.record_id))
+         )
      )
    );
-/* VERSION TEST (avant la bascule en production) : à garder pour revenir en arrière
-SELECT
-  record_id AS id,
-  titre,
-  message,
-  usage,
-  bureau,
-  description,
-  cree_par ->> 'name' AS "creePar",
-  derniere_modification ->> 'name' AS "modifiePar"
-FROM test_configuration_sms;
-*/

@@ -1,0 +1,1 @@
+SELECT * FROM chat."bureaux" LIMIT 10;
